@@ -38,14 +38,14 @@
   :group 'comms
   :prefix "coin-ticker-")
 
-
+
 ;;; Constants
 
-(defconst coin-ticker-version "0.1.0")
+(defconst coin-ticker-version "0.1.1")
 
-(defconst coin-ticker-url "https://api.coinmarketcap.com/v1/ticker/")
+(defconst coin-ticker-url "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest")
 
-
+
 ;;; Customize variables
 
 (defcustom coin-ticker-api-poll-interval 300
@@ -58,7 +58,7 @@
   :type 'number
   :group 'coin-ticker)
 
-(defcustom coin-ticker-syms '("BTC" "ETH")
+(defcustom coin-ticker-syms '("BTC" "ETH" "FTT" "SOL")
   "Coins to show."
   :group 'coin-ticker)
 
@@ -74,7 +74,10 @@
   "The symbol to show for the price."
   :group 'coin-ticker)
 
-
+(defcustom coin-ticker-cmc-api-key ""
+  "The CMC API Key"
+  :group 'coin-ticker)
+
 ;;; Internal variables
 
 (defvar coin-ticker-timer nil
@@ -86,7 +89,6 @@
 ;; users shouldn't directly modify coin-ticker-mode-line
 (put 'coin-ticker-mode-line 'risky-local-variable t)
 
-
 ;;; Methods
 
 (defun coin-ticker-start ()
@@ -126,6 +128,8 @@
     (let ((params '()))
       (if (/= coin-ticker-api-limit 0)
           (add-to-list 'params `("limit" . ,coin-ticker-api-limit)))
+      (if (> (length coin-ticker-cmc-api-key) 0)
+          (add-to-list 'params `("CMC_PRO_API_KEY" . ,coin-ticker-api-key)))
       (if (> (length coin-ticker-price-convert) 0)
           (add-to-list 'params `("convert" . ,coin-ticker-price-convert)))
       params))
@@ -151,7 +155,6 @@
                                (puthash sym price prices)))
                  (coin-ticker-modeline-update prices))))))
 
-
 ;;; Mode
 
 (define-minor-mode coin-ticker-mode
